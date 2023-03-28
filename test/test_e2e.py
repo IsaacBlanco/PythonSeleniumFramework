@@ -5,50 +5,53 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
+from pageObjects.CheckoutPage import CheckOutPage
+from pageObjects.ConfirmationPage import ConfirmationPage
+from pageObjects.HomePage import HomePage
+from utils.BaseClass import BaseClass
 
-@pytest.mark.fixture("setup",)
-class TestE2E:
-    def test_e2e(self, setup):
 
-        # add implicit wait
-        driver.implicitly_wait(4)
-        # go to url
-        driver.get("https://www.rahulshettyacademy.com/angularpractice/")
+#@pytest.mark.fixture("setup") is inherit from BaseClass
+class TestE2E(BaseClass):
+    # def test_e2e(self, setup): we cna remove setup because self is loaded with the driver variabler
+    def test_e2e(self):
 
-        # got o shop using RE to fin the element using href only eith a pice of the string
-        driver.find_element(By.LINK_TEXT, "Shop").click()
+        # to acces the driver assigned in setup fixture to the class driver
+        # we need to use keyword "self" to acces class variables
+        # so to call our driver it should go like "self.driver"
+
+        shop = HomePage(self.driver)
+        shop.shopItems().click()
 
         time.sleep(2)
         # finding and adding blacberry tp cart
-        elements = driver.find_elements(By.XPATH, "//div[@class='card h-100']")
-        print(len(elements))
-        print(elements[0].text)
-        print(elements[1].text)
-        print(elements[2].text)
-        print(elements[3].text)
-        for element in elements:
-            target_element = element.find_element(By.XPATH, "div/h4/a")
+
+        checkoutPage = CheckOutPage(self.driver)
+        cards = checkoutPage.getCardTittle()
+        for card  in cards:
+            target_element = card.find_element(By.XPATH, "div/h4/a")
             print(target_element.text)
             if target_element.text == "Blackberry":
-                element.find_element(By.XPATH, "div/button").click()
+                checkoutPage.getCardTarget(card).click()
 
         # clicking  checkout button
-        driver.find_element(By.XPATH, "//a[contains(text(), 'Checkout')]").click()
+        checkoutPage.clickCheckOut().click()
 
         # clicking checkot
-        driver.find_element(By.CLASS_NAME, "btn-success").click()
+        checkoutPage.clickSuccess().click()
 
         # entering country
-        driver.find_element(By.ID, "country").send_keys("in")
+        confirmation = ConfirmationPage(self.driver)
+        confirmation.getCountries().send_keys("in")
 
-        wait = WebDriverWait(driver, 10)
+        wait = WebDriverWait(self.driver, 10)
         wait.until(expected_conditions.visibility_of_element_located((By.XPATH, "//div[@class='suggestions']//a")))
 
-        driver.find_element(By.LINK_TEXT, "Spain").click()
-        driver.find_element(By.XPATH, "//label[@for='checkbox2']").click()
-        driver.find_element(By.CSS_SELECTOR, "[type='submit']").click()
+        confirmation.selectCountry().click()
+        confirmation.selectCheckBox().click()
+        confirmation.clickSubmit().click()
 
-        result = driver.find_element(By.XPATH, "//div[@class='alert alert-success alert-dismissible']").text
+        result = confirmation.getAlert().text
         expected = "Success! Thank you!"
         print(result)
         print(expected)
