@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
 
+from pageObjects.ConfirmationPage import ConfirmationPage
+
 
 class CheckOutPage:
 
@@ -24,4 +26,6 @@ class CheckOutPage:
         # self.driver.find_element(By.XPATH, "//a[contains(text(), 'Checkout')]").click()
 
     def clickSuccess(self):
-        return self.driver.find_element(*CheckOutPage.btnSuccess)
+        self.driver.find_element(*CheckOutPage.btnSuccess).click()
+        confirmation = ConfirmationPage(self.driver)
+        return confirmation

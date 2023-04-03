@@ -20,13 +20,11 @@ class TestE2E(BaseClass):
         # we need to use keyword "self" to acces class variables
         # so to call our driver it should go like "self.driver"
 
-        shop = HomePage(self.driver)
-        shop.shopItems().click()
+        homePage = HomePage(self.driver)
+        checkoutPage = homePage.shopItems()
 
         time.sleep(2)
         # finding and adding blacberry tp cart
-
-        checkoutPage = CheckOutPage(self.driver)
         cards = checkoutPage.getCardTittle()
         for card  in cards:
             target_element = card.find_element(By.XPATH, "div/h4/a")
@@ -38,14 +36,12 @@ class TestE2E(BaseClass):
         checkoutPage.clickCheckOut().click()
 
         # clicking checkot
-        checkoutPage.clickSuccess().click()
+        confirmation = checkoutPage.clickSuccess()
 
         # entering country
-        confirmation = ConfirmationPage(self.driver)
         confirmation.getCountries().send_keys("in")
 
-        wait = WebDriverWait(self.driver, 10)
-        wait.until(expected_conditions.visibility_of_element_located((By.XPATH, "//div[@class='suggestions']//a")))
+        self.verifyInputSugestions("//div[@class='suggestions']//a")
 
         confirmation.selectCountry().click()
         confirmation.selectCheckBox().click()
